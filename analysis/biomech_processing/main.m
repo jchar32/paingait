@@ -6,3 +6,12 @@
 % 4. compile waveforms and time normalize
 
 
+%% Setup
+
+
+data_direc_root = "U:\Projects\Experimental pain gait assessment\";
+
+subjec_info = get_subject_info(fullfile(data_direc_root,"Processed Data","Experimental pain gait assessment subject trial info.xlsx"));
+
+
+
