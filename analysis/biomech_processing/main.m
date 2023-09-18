@@ -15,5 +15,6 @@ data_root = data_direc_root + "\Processed Data\Motion Analysis Data\";
 
 %% Load participant biomech data
 
-natural
-
+for p = 1:size(subject_info.natural,2)
+    all_data = load_biomech_data(p, data_root,subject_info);
+end
