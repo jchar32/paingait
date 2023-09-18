@@ -7,11 +7,13 @@
 
 
 %% Setup
-
+addpath("./utils")
 
 data_direc_root = "U:\Projects\Experimental pain gait assessment\";
+data_root = data_direc_root + "\Processed Data\Motion Analysis Data\";
+[subject_info, limb] = get_subject_info(fullfile(data_direc_root,"Processed Data","Experimental pain gait assessment subject trial info.xlsx"));
 
-subjec_info = get_subject_info(fullfile(data_direc_root,"Processed Data","Experimental pain gait assessment subject trial info.xlsx"));
+%% Load participant biomech data
 
-
+natural
 
