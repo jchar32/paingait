@@ -12,9 +12,9 @@ this gives a simple effect size of 1.35 (cohen's d).
 
 f = d/2 = 0.675
 
-Based on using an RMD anove with this effect, a=0.05, beta = 0.8, 1 group, 
-5 measurements and a (worst case scenario) corr among measures of 0.5
+Based on using an RMD anova with this effect, a=0.05, beta = 0.8, 1 group, 
+5 measurements and a (worst case scenario) corr among measures of 0.5...
 
 we need: 4 people.
 
-This is to say, at least for moments which a most often reported to chain with pain - we should have plenty of power.
+As we will are examining a larger array out gait outcomes, we will collect 3 times this (n=12).
