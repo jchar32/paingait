@@ -44,21 +44,25 @@ KA = data.(side + "KA"){1,1};
 [out.peak_fa_swing,out.time.peak_fa_swing]     = max(KA(ON:ON_next, 1));
 [out.peak_a_hs,    out.time.peak_a_hs]         = max(KA(ON, 1));
 [out.peak_a_to,    out.time.peak_a_to]         = max(KA(OFF, 1));
+[ka_deriv] = central_difference(KA(:,:), sample_rate.mocap);
 
 % Kinetic outcomes
-KM = data.(side + "KM"){1,1};
-[out.peak_am, out.time.peak_am] = max(KM(ON:OFF,2));
-[out.peak_am1, out.time.peak_am1] = max(KM(ON:ON+round(stance_frames*0.5), 2));
-[out.peak_am2, out.time.peak_am2] = max(KM(ON+round(stance_frames*0.5):OFF, 2)); out.time.peak_am2 + ON+round(stance_frames*0.5);
-[out.peak_am, out.time.peak_am] = min(KM(out.time.peak_am1:out.time.peak_am2, 2)); out.time.peak_am + out.time.peak_am1;
-% to come: impulse
-
 [out.peak_fm, out.time.peak_fm] = max(KM(ON:OFF, 1));
 [out.peak_em, out.time.peak_em] = min(KM(ON:OFF, 1));
+positive_idx = find(KM(ON:OFF,1) >= 0) + ON;
+[out.impulse_fm]                    = trapz(KM(positive_idx,1))*(1/sample_rate.mocap);
 
-[loading_rate] = central_difference(KM(:,:), 0.01);
-[out.peak_fm_rate, out.time.peak_fm_rate] = max(loading_rate(ON:ON+round(stance_frames*0.5),1));
-[out.peak_em_rate, out.time.peak_em_rate] = min(loading_rate(ON:ON+round(stance_frames*0.5),2));
+KM = data.(side + "KM"){1,1};
+[out.peak_am, out.time.peak_am]     = max(KM(ON:OFF,2));
+[out.peak_am1, out.time.peak_am1]   = max(KM(ON:ON+round(stance_frames*0.5), 2));
+[out.peak_am2, out.time.peak_am2]   = max(KM(ON+round(stance_frames*0.5):OFF, 2)); out.time.peak_am2 + ON+round(stance_frames*0.5);
+[out.peak_am, out.time.peak_am]     = min(KM(out.time.peak_am1:out.time.peak_am2, 2)); out.time.peak_am + out.time.peak_am1;
+positive_idx = find(KM(ON:OFF,2) >= 0) + ON;
+[out.impulse_am]                    = trapz(KM(positive_idx,2))*(1/sample_rate.mocap);
+
+[km_deriv] = central_difference(KM(:,:), sample_rate.mocap);
+[out.peak_fm_rate, out.time.peak_fm_rate] = max(km_deriv(ON:ON+round(stance_frames*0.5),1));
+[out.peak_am_rate, out.time.peak_am_rate] = min(km_deriv(ON:ON+round(stance_frames*0.5),2));
 
 % Composite outcomes
 % to come: dynamic joint stiffness
