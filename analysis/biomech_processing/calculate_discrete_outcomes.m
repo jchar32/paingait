@@ -65,7 +65,17 @@ positive_idx = find(KM(ON:OFF,2) >= 0) + ON;
 [out.peak_am_rate, out.time.peak_am_rate] = min(km_deriv(ON:ON+round(stance_frames*0.5),2));
 
 % Composite outcomes
-% to come: dynamic joint stiffness
+% per Zeni et al 2009 Clin Biomech (24) - 3% stance to to peak knee flexion angle
+three_perc_stance = round(stance_frames*0.03) + ON;
+% sagittal plane DJS
+deltaM_deltaA = km_deriv(three_perc_stance:out.time.peak_fa+ON,1) / ka_deriv(three_perc_stance:out.time.peak_fa+ON,1);
+[p,~]=polyfit(ka_deriv(three_perc_stance:out.time.peak_fa+ON,1), km_deriv(three_perc_stance:out.time.peak_fa+ON,1), 1);
+[out.djs_f] = p(1); % slope of line
+
+% frontal plane DJS
+deltaM_deltaA = km_deriv(three_perc_stance:out.time.peak_am1+ON,2) / ka_deriv(three_perc_stance:out.time.peak_am1+ON,2);
+[p,~]=polyfit(ka_deriv(three_perc_stance:out.time.peak_am1+ON,2), km_deriv(three_perc_stance:out.time.peak_am1+ON,2), 1);
+[out.djs_a] = p(1); % slope of line
 
 end
 
