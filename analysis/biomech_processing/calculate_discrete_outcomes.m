@@ -2,12 +2,12 @@ function [discrete_data] = calculate_discrete_outcomes(all_data, events, sample_
 
 condition_names = fieldnames(all_data);
 for c = 1:size(condition_names,1)
-    
+
     % left 
-    LON =   events.(condition_names{c}).r.ON(:);
+    LON =   events.(condition_names{c}).l.ON(:);
     LOFF =  events.(condition_names{c}).l.OFF(:);
     RON =   events.(condition_names{c}).r.ON(:);
-    ROFF =  events.(condition_names{c}).l.OFF(:);
+    ROFF =  events.(condition_names{c}).r.OFF(:);
 
      % spatiotemporal
     [discrete_data.(condition_names{c}).temporal.r] = temporal_outcomes(RON, ROFF);

@@ -10,6 +10,7 @@ for c = 1:size(condition_names,1)
 
     % gait events
     [gait_events.(condition_names{c})] = clean_gait_events(LON, LOFF, RON, ROFF);
+
 end
 end
 
