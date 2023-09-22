@@ -300,14 +300,6 @@ end
 
 
 %% Helper functions
-function [isgood]= is_good_stride(ON, OFF,s)
-    isgood=true;
-    if (OFF(s) - ON(s)) > 1.5
-        isgood=false;
-    elseif (OFF(s) - ON(s) < 0)
-    end
-end
-
 function [dy] = central_difference(y, fs)
     % y = n x m where n=samples and m=channels
     % fs = sampling freq
@@ -326,21 +318,12 @@ function [dy] = central_difference(y, fs)
 
 end
 
-function [ON, OFF, ON_next, stance_frames, stride_frames] = unpack_events(events, stride, side, sample_rate)
-    % unpack events
-    ON = round(events.(lower(side)).ON(stride) * sample_rate);
-    OFF = round(events.(lower(side)).OFF(stride) * sample_rate);
-    ON_next = round(events.(lower(side)).ON(stride+1) * sample_rate);
-    stance_frames = OFF-ON;
-    stride_frames = ON_next-ON;
-end
-
 function [djs_f, djs_a] = dynamic_joint_stiffness(moment_deriv, angle_deriv, startframe, endframe)
     % Composite outcomes
     % per Zeni et al 2009 Clin Biomech (24) - 3% stance to to peak knee flexion angle
     
     [fp,~]=polyfit(angle_deriv(startframe:endframe,1), moment_deriv(startframe:endframe,1), 1);
     [ap,~]=polyfit(angle_deriv(startframe:endframe,2), moment_deriv(startframe:endframe,1), 2);
-    [djs_f] = fp(1); % slope of line
+    [djs_f] = fp(1); 
     [djs_a] = ap(1); 
 end
