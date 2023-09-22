@@ -1,7 +1,7 @@
 function [discrete_data] = calculate_discrete_outcomes(all_data, events, sample_rate)
 
 condition_names = fieldnames(all_data);
-for c = 1:1%size(condition_names,1)
+for c = 1:size(condition_names,1)
     
     % left 
     LON =   events.(condition_names{c}).r.ON(:);
@@ -10,28 +10,35 @@ for c = 1:1%size(condition_names,1)
     ROFF =  events.(condition_names{c}).l.OFF(:);
 
      % spatiotemporal
-    [discrete_data.(condition_names{c}).r.temporal] = temporal_outcomes(RON, ROFF);
-    [discrete_data.(condition_names{c}).l.temporal] = temporal_outcomes(LON, LOFF);
+    [discrete_data.(condition_names{c}).temporal.r] = temporal_outcomes(RON, ROFF);
+    [discrete_data.(condition_names{c}).temporal.l] = temporal_outcomes(LON, LOFF);
 
     % Kinematic and Kinetic Outcomes    
     for s = 1:size(events.(condition_names{c}).l.ON)-1
         discrete_data.(condition_names{c}).knee.l = knee_outcomes(all_data.(condition_names{c}), events.(condition_names{c}), s, "L", sample_rate);
         discrete_data.(condition_names{c}).ankle.l = ankle_outcomes(all_data.(condition_names{c}), events.(condition_names{c}), s, "L", sample_rate);
         discrete_data.(condition_names{c}).hip.l = hip_outcomes(all_data.(condition_names{c}), events.(condition_names{c}), s, "L", sample_rate);
+        
         discrete_data.(condition_names{c}).grf.l = grf_outcomes(all_data.(condition_names{c}), events.(condition_names{c}), s, "L", sample_rate);
+
+        discrete_data.(condition_names{c}).foot.l = foot_outcomes(all_data.(condition_names{c}), events.(condition_names{c}), s, "L", sample_rate);
+        discrete_data.(condition_names{c}).shank.l = shank_outcomes(all_data.(condition_names{c}), events.(condition_names{c}), s, "L", sample_rate);
+        discrete_data.(condition_names{c}).thigh.l = thigh_outcomes(all_data.(condition_names{c}), events.(condition_names{c}), s, "L", sample_rate);
     end
     
     for s = 1:size(events.(condition_names{c}).r.ON)-1
         discrete_data.(condition_names{c}).knee.r = knee_outcomes(all_data.(condition_names{c}), events.(condition_names{c}), s, "R", sample_rate);
         discrete_data.(condition_names{c}).ankle.r = ankle_outcomes(all_data.(condition_names{c}), events.(condition_names{c}), s, "R", sample_rate);
         discrete_data.(condition_names{c}).hip.r = hip_outcomes(all_data.(condition_names{c}), events.(condition_names{c}), s, "R", sample_rate);
+        
         discrete_data.(condition_names{c}).grf.r = grf_outcomes(all_data.(condition_names{c}), events.(condition_names{c}), s, "R", sample_rate);
+        
+        discrete_data.(condition_names{c}).foot.r = foot_outcomes(all_data.(condition_names{c}), events.(condition_names{c}), s, "R", sample_rate);
+        discrete_data.(condition_names{c}).shank.r = shank_outcomes(all_data.(condition_names{c}), events.(condition_names{c}), s, "R", sample_rate);
+        discrete_data.(condition_names{c}).thigh.r = thigh_outcomes(all_data.(condition_names{c}), events.(condition_names{c}), s, "R", sample_rate);
+
     end
-    
-
 end
-
-
 end
 
 function [out] = hip_outcomes(data, events, stride, side, sample_rate)
@@ -82,11 +89,10 @@ positive_idx = find(HM(ON:OFF,2) >= 0) + ON;
 
 % Composite outcomes
 % per Zeni et al 2009 Clin Biomech (24) - 3% stance to to peak knee flexion angle
-[out.djs_f, out.djs_a] = dynamic_joint_stiffness(hm_deriv, ha_deriv, round(stance_frames*0.03) + ON, out.time.peak_fa+ON);
+% [out.djs_f, out.djs_a] = dynamic_joint_stiffness(hm_deriv, ha_deriv, round(stance_frames*0.03) + ON, out.time.peak_fa+ON);
 
 
 end
-
 
 function [out] = knee_outcomes(data, events, stride, side, sample_rate)
 
@@ -143,7 +149,6 @@ positive_idx = find(KM(ON:OFF,2) >= 0) + ON;
 
 end
 
-
 function [out] = ankle_outcomes(data, events, stride, side, sample_rate)
 [ON, OFF, ON_next, stance_frames, stride_frames] = unpack_events(events, stride, side, sample_rate.mocap);
 
@@ -173,10 +178,9 @@ AM = data.(side + "AM"){1,1};
 [am_deriv] = central_difference(AM(:,:), sample_rate.mocap);
 
 % Composite
-[out.djs_pf, out.djs_a] = dynamic_joint_stiffness(am_deriv, aa_deriv, round(stance_frames*0.03) + ON, out.time.peak_eva+ON);
+% [out.djs_pf, out.djs_a] = dynamic_joint_stiffness(am_deriv, aa_deriv, round(stance_frames*0.03) + ON, out.time.peak_eva+ON);
 
 end
-
 
 function [out] = grf_outcomes(data, events, stride, side, sample_rate)
 [ON, OFF, ON_next, stance_frames, stride_frames] = unpack_events(events, stride, side, sample_rate.analog);
@@ -226,6 +230,63 @@ positive_idx = find(GRF(ON:OFF,3) >= 0) + ON;
 
 end
 
+function [out] = foot_outcomes(data, events, stride, side, sample_rate)
+[ON, OFF, ON_next, stance_frames, stride_frames] = unpack_events(events, stride, side, sample_rate.mocap);
+
+% Kinematic Outcomes
+FA = data.(side + "F"){1,1};
+% not actually flexion(fa)/extension angles(ea), but this is fine for now.
+[out.peak_pfa,      out.time.peak_pfa]           = max(FA(ON:OFF,1));
+[out.peak_dfa,      out.time.peak_dfa]           = min(FA(ON:OFF,1));
+
+[out.a_hs,      out.time.a_hs]           = max(FA(ON,1));
+[out.a_to,      out.time.a_to]           = max(FA(OFF,1));
+[out.a_ms,      out.time.a_ms]           = max(FA(ON+round(stance_frames*0.5),1)) ;
+out.time.a_ms = out.time.a_ms + ON;
+[out.a_termswing]                        = max(FA(ON-round(stance_frames*0.1):ON,1));
+
+end
+
+function [out] = shank_outcomes(data, events, stride, side, sample_rate)
+[ON, OFF, ON_next, stance_frames, stride_frames] = unpack_events(events, stride, side, sample_rate.mocap);
+
+% Kinematic Outcomes
+SA = data.(side + "SK"){1,1};
+if  side == "R"
+    SA = SA.*[1,1,-1];
+end
+% not actually flexion(fa)/extension angles(ea), but this is fine for now.
+[out.peak_fa,      out.time.peak_fa]           = max(SA(ON:OFF,1));
+[out.peak_ea,      out.time.peak_ea]           = min(SA(ON:OFF,1));
+
+[out.a_hs,      out.time.a_hs]           = max(SA(ON,1));
+[out.a_to,      out.time.a_to]           = max(SA(OFF,1));
+[out.a_ms,      out.time.a_ms]           = max(SA(ON+round(stance_frames*0.5),1)) ;
+out.time.a_ms = out.time.a_ms + ON;
+[out.a_termswing]                        = max(SA(ON-round(stance_frames*0.1):ON,1));
+
+end
+
+function [out] = thigh_outcomes(data, events, stride, side, sample_rate)
+[ON, OFF, ON_next, stance_frames, stride_frames] = unpack_events(events, stride, side, sample_rate.mocap);
+
+% Kinematic Outcomes
+TA = data.(side + "TH"){1,1};
+if  side == "R"
+    TA = TA.*[1,1,-1];
+end
+% not actually flexion(fa)/extension angles(ea), but this is fine for now.
+[out.peak_fa,      out.time.peak_fa]           = max(TA(ON:OFF,1));
+[out.peak_ea,      out.time.peak_ea]           = min(TA(ON:OFF,1));
+
+[out.a_hs,      out.time.a_hs]           = max(TA(ON,1));
+[out.a_to,      out.time.a_to]           = max(TA(OFF,1));
+[out.a_ms,      out.time.a_ms]           = max(TA(ON+round(stance_frames*0.5),1)) ;
+out.time.a_ms = out.time.a_ms + ON;
+[out.a_termswing]                        = max(TA(ON-round(stance_frames*0.1):ON,1));
+
+end
+
 function [events_out] = temporal_outcomes(ON, OFF)
     events_out.stride_time = diff(ON);
     events_out.stride_time(events_out.stride_time > 1.8) = NaN; % replace the swing times that are incorrect due to missing ONs that were removed
@@ -236,6 +297,7 @@ function [events_out] = temporal_outcomes(ON, OFF)
     events_out.swing_time_perc = events_out.swing_time(1:end) ./ events_out.stride_time;
     events_out.cadence = sum(~isnan(events_out.stride_time))/(nansum(events_out.stride_time)/60);
 end
+
 
 %% Helper functions
 function [isgood]= is_good_stride(ON, OFF,s)
