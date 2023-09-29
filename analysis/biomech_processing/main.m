@@ -23,4 +23,6 @@ for p = 1:size(subject_info.natural,2)
     [gait_events] = process_gait_events(all_data);
     [discrete_data] = calculate_discrete_outcomes(all_data, gait_events, sample_rate);
     [waveforms] = compile_waveforms(all_data, gait_events, sample_rate);
+    visualize_gait_waveforms(waveforms)
 end
+
