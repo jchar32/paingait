@@ -28,7 +28,7 @@ for c = 1:size(condition_names,1)
     waveforms.(condition_names{c}).thigh.r.angle  = gather_strides(all_data.(condition_names{c}).RTH{1,1}, events.(condition_names{c}), "R", sample_rate.mocap);
   
     waveforms.(condition_names{c}).grf.l.force  = gather_strides(all_data.(condition_names{c}).FP1_filt{1,1}, events.(condition_names{c}), "L", sample_rate.analog);
-    waveforms.(condition_names{c}).grf.r.force  = gather_strides(all_data.(condition_names{c}).FP2_filt{1,1}, events.(condition_names{c}), "R", sample_rate.analog);
+    waveforms.(condition_names{c}).grf.r.force  = gather_strides(all_data.(condition_names{c}).FP2_filt{1,1} .* [-1,1,1], events.(condition_names{c}), "R", sample_rate.analog);
   
 end
 
