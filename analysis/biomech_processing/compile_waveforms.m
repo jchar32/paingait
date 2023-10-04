@@ -2,7 +2,10 @@ function [waveforms] = compile_waveforms(all_data, events, sample_rate)
 
 condition_names = fieldnames(all_data);
 for c = 1:size(condition_names,1)
-    
+%     disp(condition_names{c})
+%     if condition_names{c}== "fourcycc"
+%         disp("")
+%     end
     waveforms.(condition_names{c}).hip.l.angle  = gather_strides(all_data.(condition_names{c}).LHA{1,1}, events.(condition_names{c}), "L", sample_rate.mocap);
     waveforms.(condition_names{c}).hip.r.angle  = gather_strides(all_data.(condition_names{c}).RHA{1,1}, events.(condition_names{c}), "R", sample_rate.mocap);
     waveforms.(condition_names{c}).hip.l.moment = gather_strides(all_data.(condition_names{c}).LHM{1,1}, events.(condition_names{c}), "L", sample_rate.mocap);
@@ -35,14 +38,15 @@ end
 end
 
 function [out] = gather_strides(data, events, side, sample_rate)
-
+% disp("")
     for s = 1:size(events.(lower(side)).ON)-1
-        [ON, OFF, ON_next, stance_frames, stride_frames] = unpack_events(events, s, side, sample_rate);
+        
+        [ON, OFF, ON_next, ~, ~] = unpack_events(events, s, side, sample_rate);
         if ~(is_good_stance(ON*(1/sample_rate), OFF*(1/sample_rate)) && is_good_stride(ON*(1/sample_rate), ON_next*(1/sample_rate)))
-            out.stance{s,1} = NaN;
-            out.cycle{s,1} = NaN;
-            out.stance_nd(:,1:3,s) = NaN;
-            out.cycle_nd(:,1:3,s) = NaN;
+            out.stance{s,1} = nan(100,3);
+            out.cycle{s,1} = nan(100,3);
+            out.stance_nd(:,1:3,s) = nan(100,3);
+            out.cycle_nd(:,1:3,s) = nan(100,3);
             continue;
         end
         
@@ -61,25 +65,8 @@ function [out] = gather_strides(data, events, side, sample_rate)
 
 end
 
-function [isgood]= is_good_stance(ON, OFF)
-    isgood=true;
-    if (OFF - ON) > 1.5
-        isgood=false;
-    elseif (OFF - ON) < 0
-        isgood=false;
-    end
-end
-
-function [isgood] = is_good_stride(ON, ON_next)
-    isgood=true;
-    if (ON_next - ON) > 2
-        isgood=false;
-    elseif (ON_next - ON) < 0
-         isgood=false;
-    end
-end
 
 function [nd] = time_normalize(data)
-    nd=interp1(1:size(data,1), data, linspace(0, size(data,1), 100 ),"pchip");
+    nd=interp1(1:size(data,1), data, linspace(0, size(data,1), 100 ), "pchip");
 end
 

@@ -3,18 +3,31 @@ function [discrete_data] = calculate_discrete_outcomes(all_data, events, sample_
 condition_names = fieldnames(all_data);
 for c = 1:size(condition_names,1)
 
-    % left 
+    % Events 
     LON =   events.(condition_names{c}).l.ON(:);
     LOFF =  events.(condition_names{c}).l.OFF(:);
+    LON_next = events.(condition_names{c}).l.ON_next(:);
     RON =   events.(condition_names{c}).r.ON(:);
     ROFF =  events.(condition_names{c}).r.OFF(:);
+    RON_next = events.(condition_names{c}).r.ON_next(:);
 
-     % spatiotemporal
+    % spatiotemporal
     [discrete_data.(condition_names{c}).temporal.r] = temporal_outcomes(RON, ROFF);
     [discrete_data.(condition_names{c}).temporal.l] = temporal_outcomes(LON, LOFF);
-
+    
+    % counter to track number of good strides that are used in discrete outcomes
+    discrete_data.(condition_names{c}).left_stride_counter = 0;
+    discrete_data.(condition_names{c}).right_stride_counter = 0;
+    
     % Kinematic and Kinetic Outcomes    
-    for s = 1:size(events.(condition_names{c}).l.ON)-1
+    for s = 1:size(events.(condition_names{c}).l.ON)-1 % Left Leg
+
+        [ON, OFF, ON_next, ~, ~] = unpack_events(events.(condition_names{c}), s, "L", sample_rate.mocap);
+        if ~(is_good_stance(ON*(1/sample_rate.mocap), OFF*(1/sample_rate.mocap)) && is_good_stride(ON*(1/sample_rate.mocap), ON_next*(1/sample_rate.mocap)))
+            continue;
+        end
+        discrete_data.(condition_names{c}).left_stride_counter =  discrete_data.(condition_names{c}).left_stride_counter+1;
+
         discrete_data.(condition_names{c}).knee.l = knee_outcomes(all_data.(condition_names{c}), events.(condition_names{c}), s, "L", sample_rate);
         discrete_data.(condition_names{c}).ankle.l = ankle_outcomes(all_data.(condition_names{c}), events.(condition_names{c}), s, "L", sample_rate);
         discrete_data.(condition_names{c}).hip.l = hip_outcomes(all_data.(condition_names{c}), events.(condition_names{c}), s, "L", sample_rate);
@@ -26,7 +39,14 @@ for c = 1:size(condition_names,1)
         discrete_data.(condition_names{c}).thigh.l = thigh_outcomes(all_data.(condition_names{c}), events.(condition_names{c}), s, "L", sample_rate);
     end
     
-    for s = 1:size(events.(condition_names{c}).r.ON)-1
+    for s = 1:size(events.(condition_names{c}).r.ON)-1 % Right Leg
+
+        [ON, OFF, ON_next, ~, ~] = unpack_events(events.(condition_names{c}), s, "R", sample_rate.mocap);
+        if ~(is_good_stance(ON*(1/sample_rate.mocap), OFF*(1/sample_rate.mocap)) && is_good_stride(ON*(1/sample_rate.mocap), ON_next*(1/sample_rate.mocap)))
+            continue;
+        end
+        discrete_data.(condition_names{c}).right_stride_counter =  discrete_data.(condition_names{c}).right_stride_counter +1;
+
         discrete_data.(condition_names{c}).knee.r = knee_outcomes(all_data.(condition_names{c}), events.(condition_names{c}), s, "R", sample_rate);
         discrete_data.(condition_names{c}).ankle.r = ankle_outcomes(all_data.(condition_names{c}), events.(condition_names{c}), s, "R", sample_rate);
         discrete_data.(condition_names{c}).hip.r = hip_outcomes(all_data.(condition_names{c}), events.(condition_names{c}), s, "R", sample_rate);
@@ -42,7 +62,7 @@ end
 end
 
 function [out] = hip_outcomes(data, events, stride, side, sample_rate)
-[ON, OFF, ON_next, stance_frames, stride_frames] = unpack_events(events, stride, side, sample_rate.mocap);
+[ON, OFF, ON_next, stance_frames, ~] = unpack_events(events, stride, side, sample_rate.mocap);
 
 HA = data.(side + "HA"){1,1};
 % Sagittal
@@ -90,13 +110,11 @@ positive_idx = find(HM(ON:OFF,2) >= 0) + ON;
 % Composite outcomes
 % per Zeni et al 2009 Clin Biomech (24) - 3% stance to to peak knee flexion angle
 % [out.djs_f, out.djs_a] = dynamic_joint_stiffness(hm_deriv, ha_deriv, round(stance_frames*0.03) + ON, out.time.peak_fa+ON);
-
-
 end
 
 function [out] = knee_outcomes(data, events, stride, side, sample_rate)
 
-[ON, OFF, ON_next, stance_frames, stride_frames] = unpack_events(events, stride, side, sample_rate.mocap);
+[ON, OFF, ON_next, stance_frames, ~] = unpack_events(events, stride, side, sample_rate.mocap);
 
 % Kinematic  outcomes
 KA = data.(side + "KA"){1,1};
@@ -150,7 +168,7 @@ positive_idx = find(KM(ON:OFF,2) >= 0) + ON;
 end
 
 function [out] = ankle_outcomes(data, events, stride, side, sample_rate)
-[ON, OFF, ON_next, stance_frames, stride_frames] = unpack_events(events, stride, side, sample_rate.mocap);
+[ON, OFF, ON_next, stance_frames, ~] = unpack_events(events, stride, side, sample_rate.mocap);
 
 % Kinematic Outcomes
 AA = data.(side + "AA"){1,1};
@@ -183,7 +201,7 @@ AM = data.(side + "AM"){1,1};
 end
 
 function [out] = grf_outcomes(data, events, stride, side, sample_rate)
-[ON, OFF, ON_next, stance_frames, stride_frames] = unpack_events(events, stride, side, sample_rate.analog);
+[ON, OFF, ON_next, stance_frames, ~] = unpack_events(events, stride, side, sample_rate.analog);
 % GRF signal order = [ML,AP,V];
 % GRF convention: + = medial, propulsive/forward, up
 
@@ -231,7 +249,7 @@ positive_idx = find(GRF(ON:OFF,3) >= 0) + ON;
 end
 
 function [out] = foot_outcomes(data, events, stride, side, sample_rate)
-[ON, OFF, ON_next, stance_frames, stride_frames] = unpack_events(events, stride, side, sample_rate.mocap);
+[ON, OFF, ON_next, stance_frames, ~] = unpack_events(events, stride, side, sample_rate.mocap);
 
 % Kinematic Outcomes
 FA = data.(side + "F"){1,1};
@@ -248,7 +266,7 @@ out.time.a_ms = out.time.a_ms + ON;
 end
 
 function [out] = shank_outcomes(data, events, stride, side, sample_rate)
-[ON, OFF, ON_next, stance_frames, stride_frames] = unpack_events(events, stride, side, sample_rate.mocap);
+[ON, OFF, ON_next, stance_frames, ~] = unpack_events(events, stride, side, sample_rate.mocap);
 
 % Kinematic Outcomes
 SA = data.(side + "SK"){1,1};
@@ -268,7 +286,7 @@ out.time.a_ms = out.time.a_ms + ON;
 end
 
 function [out] = thigh_outcomes(data, events, stride, side, sample_rate)
-[ON, OFF, ON_next, stance_frames, stride_frames] = unpack_events(events, stride, side, sample_rate.mocap);
+[ON, OFF, ON_next, stance_frames, ~] = unpack_events(events, stride, side, sample_rate.mocap);
 
 % Kinematic Outcomes
 TA = data.(side + "TH"){1,1};
