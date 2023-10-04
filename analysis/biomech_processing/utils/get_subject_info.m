@@ -24,7 +24,7 @@ function trial_nums = import_trialnumber(workbookFile, dataLines)
     opts.DataRange = "B" + dataLines(1, 1) + ":M" + dataLines(1, 2);
     
     % Specify column names and types
-    opts.VariableNames = ["PAINGAIT01", "PAINGAIT02", "PAINGAIT03", "PAINGAIT04", "PAINGAIT05", "PAINGAIT06", "PAINGAIT07", "PAINGAIT08", "PAINTGAIT09", "PAINGAIT10", "PAINGAIT11", "PAINGAIT12"];
+    opts.VariableNames = ["PAINGAIT01", "PAINGAIT02", "PAINGAIT03", "PAINGAIT04", "PAINGAIT05", "PAINGAIT06", "PAINGAIT07", "PAINGAIT08", "PAINGAIT09", "PAINGAIT10", "PAINGAIT11", "PAINGAIT12"];
     opts.VariableTypes = [ "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double"];
     
     % Specify variable properties
