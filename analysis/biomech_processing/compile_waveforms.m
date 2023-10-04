@@ -2,10 +2,7 @@ function [waveforms] = compile_waveforms(all_data, events, sample_rate)
 
 condition_names = fieldnames(all_data);
 for c = 1:size(condition_names,1)
-%     disp(condition_names{c})
-%     if condition_names{c}== "fourcycc"
-%         disp("")
-%     end
+    if isempty(all_data.(condition_names{c})); continue; end
     waveforms.(condition_names{c}).hip.l.angle  = gather_strides(all_data.(condition_names{c}).LHA{1,1}, events.(condition_names{c}), "L", sample_rate.mocap);
     waveforms.(condition_names{c}).hip.r.angle  = gather_strides(all_data.(condition_names{c}).RHA{1,1}, events.(condition_names{c}), "R", sample_rate.mocap);
     waveforms.(condition_names{c}).hip.l.moment = gather_strides(all_data.(condition_names{c}).LHM{1,1}, events.(condition_names{c}), "L", sample_rate.mocap);

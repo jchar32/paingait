@@ -2,7 +2,7 @@ function [discrete_data] = calculate_discrete_outcomes(all_data, events, sample_
 
 condition_names = fieldnames(all_data);
 for c = 1:size(condition_names,1)
-
+    if isempty(all_data.(condition_names{c})); continue; end
     % Events 
     LON =   events.(condition_names{c}).l.ON(:);
     LOFF =  events.(condition_names{c}).l.OFF(:);

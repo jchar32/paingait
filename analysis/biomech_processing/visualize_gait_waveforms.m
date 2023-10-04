@@ -23,6 +23,7 @@ figure;
 fa   = tiledlayout('flow'); title(fa  ,"Foot Segment Angle");
 
 for c = 1:length(conditions)
+    if isempty(data.(conditions{c})); continue; end
     nexttile(ka); hold on;
     make_plot(data.(conditions{c}).knee, conditions{c},      "angle",    1);
     nexttile(kam); hold on;
