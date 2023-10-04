@@ -22,8 +22,13 @@ for t = 1:length(condition_names) % 23 total trials to compile
                 data_out.(condition_name_updated) = [];
                 continue;
             end
-
-            path2file = fullfile(data_root, "PAINGAIT" + partic, "Trial" + num2str(t_num) + ".mat");
+            
+            % Cortex 8 adds a "0" ahead of single digit trial numbers, this accomodates it. Cortex 8 was used from P10 onward I believe.
+            if ~exist(fullfile(data_root, "PAINGAIT" + partic, "Trial" + num2str(t_num) + ".mat"))
+                path2file = fullfile(data_root, "PAINGAIT" + partic, "Trial0" + num2str(t_num) + ".mat");
+            else
+                path2file = fullfile(data_root, "PAINGAIT" + partic, "Trial" + num2str(t_num) + ".mat");
+            end
             
             condition_name_updated = condition_names{t} + increment(subt);
             
