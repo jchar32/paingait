@@ -32,7 +32,14 @@ for t = 1:length(condition_names) % 23 total trials to compile
             
             condition_name_updated = condition_names{t} + increment(subt);
             
+            if exist(path2file, "file") ==0
+                warning("Cannot find: " + path2file)
+                data_out.(condition_name_updated) = [];
+                continue;
+            else
             [data_out.(condition_name_updated)] = load(path2file);
+            end
+       
         end
     else
         
@@ -49,7 +56,13 @@ for t = 1:length(condition_names) % 23 total trials to compile
             path2file = fullfile(data_root, "PAINGAIT" + partic, "Trial" + num2str(subject_info.(condition_names{t}).("PAINGAIT" + partic)(1)) + ".mat");
         end
         
-        [data_out.(condition_names{t})] = load(path2file);
+        if exist(path2file, "file") ==0
+            warning("Cannot find: " + path2file)
+            data_out.(condition_names{t}) = [];
+            continue;
+        else
+            [data_out.(condition_names{t})] = load(path2file);
+        end
     end
      
 end
