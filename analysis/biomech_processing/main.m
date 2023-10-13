@@ -18,7 +18,7 @@ sample_rate.analog= 2000;
 
 %% Load participant biomech data and process
 
-for p = 6:6%size(subject_info.natural,2)
+for p = 1:size(subject_info.natural,2)
     all_data = load_biomech_data(p, data_root,subject_info);
     [gait_events] = process_gait_events(all_data);
     [discrete_data] = calculate_discrete_outcomes(all_data, gait_events, sample_rate);
@@ -28,3 +28,5 @@ for p = 6:6%size(subject_info.natural,2)
     save(fullfile(data_root, "Summary Data", "P" + num2str(p) + "_data.mat"), "gait_events","discrete_data","waveforms")
 end
 
+%% Compile participant data into summary tables for analysis
+% to come
