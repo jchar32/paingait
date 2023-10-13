@@ -3,7 +3,7 @@ function [discrete_data] = calculate_discrete_outcomes(all_data, events, sample_
 condition_names = fieldnames(all_data);
 for c = 1:size(condition_names,1)
     if isempty(all_data.(condition_names{c})); continue; end
-    % Events 
+    % Events
     LON =   events.(condition_names{c}).l.ON(:);
     LOFF =  events.(condition_names{c}).l.OFF(:);
     LON_next = events.(condition_names{c}).l.ON_next(:);
@@ -14,50 +14,30 @@ for c = 1:size(condition_names,1)
     % spatiotemporal
     [discrete_data.(condition_names{c}).temporal.r] = temporal_outcomes(RON, ROFF);
     [discrete_data.(condition_names{c}).temporal.l] = temporal_outcomes(LON, LOFF);
-    
-    % counter to track number of good strides that are used in discrete outcomes
-    discrete_data.(condition_names{c}).left_stride_counter = 0;
-    discrete_data.(condition_names{c}).right_stride_counter = 0;
-    
-    % Kinematic and Kinetic Outcomes    
-%     for s = 1:size(events.(condition_names{c}).l.ON)-1 % Left Leg
 
-%         [ON, OFF, ON_next, ~, ~] = unpack_events(events.(condition_names{c}), s, "L", sample_rate.mocap);
-%         if ~(is_good_stance(ON*(1/sample_rate.mocap), OFF*(1/sample_rate.mocap)) && is_good_stride(ON*(1/sample_rate.mocap), ON_next*(1/sample_rate.mocap)))
-%             continue;
-%         end
-        discrete_data.(condition_names{c}).left_stride_counter =  discrete_data.(condition_names{c}).left_stride_counter+1;
+    % Kinematic and Kinetic Outcomes
+    % Left
 
-        discrete_data.(condition_names{c}).knee.l = knee_outcomes(all_data.(condition_names{c}), events.(condition_names{c}),  "L", sample_rate);
-        discrete_data.(condition_names{c}).ankle.l = ankle_outcomes(all_data.(condition_names{c}), events.(condition_names{c}),  "L", sample_rate);
-        discrete_data.(condition_names{c}).hip.l = hip_outcomes(all_data.(condition_names{c}), events.(condition_names{c}), "L", sample_rate);
-        
-        discrete_data.(condition_names{c}).grf.l = grf_outcomes(all_data.(condition_names{c}), events.(condition_names{c}),  "L", sample_rate);
+    discrete_data.(condition_names{c}).knee.l = knee_outcomes(all_data.(condition_names{c}), events.(condition_names{c}),  "L", sample_rate);
+    discrete_data.(condition_names{c}).ankle.l = ankle_outcomes(all_data.(condition_names{c}), events.(condition_names{c}),  "L", sample_rate);
+    discrete_data.(condition_names{c}).hip.l = hip_outcomes(all_data.(condition_names{c}), events.(condition_names{c}), "L", sample_rate);
 
-        discrete_data.(condition_names{c}).foot.l = foot_outcomes(all_data.(condition_names{c}), events.(condition_names{c}),  "L", sample_rate);
-        discrete_data.(condition_names{c}).shank.l = shank_outcomes(all_data.(condition_names{c}), events.(condition_names{c}),  "L", sample_rate);
-        discrete_data.(condition_names{c}).thigh.l = thigh_outcomes(all_data.(condition_names{c}), events.(condition_names{c}),  "L", sample_rate);
-%     end
-    
-%     for s = 1:size(events.(condition_names{c}).r.ON)-1 % Right Leg
+    discrete_data.(condition_names{c}).grf.l = grf_outcomes(all_data.(condition_names{c}), events.(condition_names{c}),  "L", sample_rate);
 
-%         [ON, OFF, ON_next, ~, ~] = unpack_events(events.(condition_names{c}), s, "R", sample_rate.mocap);
-%         if ~(is_good_stance(ON*(1/sample_rate.mocap), OFF*(1/sample_rate.mocap)) && is_good_stride(ON*(1/sample_rate.mocap), ON_next*(1/sample_rate.mocap)))
-%             continue;
-%         end
-        discrete_data.(condition_names{c}).right_stride_counter =  discrete_data.(condition_names{c}).right_stride_counter +1;
+    discrete_data.(condition_names{c}).foot.l = foot_outcomes(all_data.(condition_names{c}), events.(condition_names{c}),  "L", sample_rate);
+    discrete_data.(condition_names{c}).shank.l = shank_outcomes(all_data.(condition_names{c}), events.(condition_names{c}),  "L", sample_rate);
+    discrete_data.(condition_names{c}).thigh.l = thigh_outcomes(all_data.(condition_names{c}), events.(condition_names{c}),  "L", sample_rate);
 
-        discrete_data.(condition_names{c}).knee.r = knee_outcomes(all_data.(condition_names{c}), events.(condition_names{c}), "R", sample_rate);
-        discrete_data.(condition_names{c}).ankle.r = ankle_outcomes(all_data.(condition_names{c}), events.(condition_names{c}),  "R", sample_rate);
-        discrete_data.(condition_names{c}).hip.r = hip_outcomes(all_data.(condition_names{c}), events.(condition_names{c}), "R", sample_rate);
-        
-        discrete_data.(condition_names{c}).grf.r = grf_outcomes(all_data.(condition_names{c}), events.(condition_names{c}),  "R", sample_rate);
-        
-        discrete_data.(condition_names{c}).foot.r = foot_outcomes(all_data.(condition_names{c}), events.(condition_names{c}),  "R", sample_rate);
-        discrete_data.(condition_names{c}).shank.r = shank_outcomes(all_data.(condition_names{c}), events.(condition_names{c}),  "R", sample_rate);
-        discrete_data.(condition_names{c}).thigh.r = thigh_outcomes(all_data.(condition_names{c}), events.(condition_names{c}),  "R", sample_rate);
+    % Right
+    discrete_data.(condition_names{c}).knee.r = knee_outcomes(all_data.(condition_names{c}), events.(condition_names{c}), "R", sample_rate);
+    discrete_data.(condition_names{c}).ankle.r = ankle_outcomes(all_data.(condition_names{c}), events.(condition_names{c}),  "R", sample_rate);
+    discrete_data.(condition_names{c}).hip.r = hip_outcomes(all_data.(condition_names{c}), events.(condition_names{c}), "R", sample_rate);
 
-%     end
+    discrete_data.(condition_names{c}).grf.r = grf_outcomes(all_data.(condition_names{c}), events.(condition_names{c}),  "R", sample_rate);
+
+    discrete_data.(condition_names{c}).foot.r = foot_outcomes(all_data.(condition_names{c}), events.(condition_names{c}),  "R", sample_rate);
+    discrete_data.(condition_names{c}).shank.r = shank_outcomes(all_data.(condition_names{c}), events.(condition_names{c}),  "R", sample_rate);
+    discrete_data.(condition_names{c}).thigh.r = thigh_outcomes(all_data.(condition_names{c}), events.(condition_names{c}),  "R", sample_rate);
 end
 end
 
@@ -77,7 +57,7 @@ function [out] = hip_outcomes(data, events, side, sample_rate)
         [out.peak_ea(stride),      out.time.peak_ea(stride)]           = min(HA(ON:OFF, 1));
         [out.peak_fa_swing(stride), out.time.peak_fa_swing(stride)]     = max(HA(ON:ON_next, 1));
         [out.fa_hs(stride),    out.time.fa_hs(stride)]         = max(HA(ON, 1));
-        [out.fa_to(stride),    out.time.fa_to{stride}]         = max(HA(OFF, 1));
+        [out.fa_to(stride),    out.time.fa_to(stride)]         = max(HA(OFF, 1));
     
         % Frontal
         [out.peak_aa(stride),       out.time.peak_aa(stride)]           = min(HA(ON:OFF, 2));
@@ -118,6 +98,9 @@ function [out] = hip_outcomes(data, events, side, sample_rate)
         % per Zeni et al 2009 Clin Biomech (24) - 3% stance to to peak knee flexion angle
         % [out.djs_f, out.djs_a] = dynamic_joint_stiffness(hm_deriv, ha_deriv, round(stance_frames*0.03) + ON, out.time.peak_fa+ON);
     end
+
+    [out.means, out.stds] = summary_outcomes(out);
+
 end
 
 function [out] = knee_outcomes(data, events, side, sample_rate)
@@ -134,7 +117,7 @@ function [out] = knee_outcomes(data, events, side, sample_rate)
         KA = data.(side + "KA"){1,1};
         % Sagittal
         [out.peak_fa(stride),      out.time.peak_fa(stride)]           = max(KA(ON:ON+round(stance_frames*0.5), 1));
-        [out.peak_ea(stride),      out.time.peak_ea(stride)]           = min(KA(out.time.peak_fa:OFF, 1));
+        [out.peak_ea(stride),      out.time.peak_ea(stride)]           = min(KA(out.time.peak_fa(stride):OFF, 1));
         out.time.peak_ea(stride) = out.time.peak_ea(stride) + out.time.peak_fa(stride);
         [out.peak_fa_swing(stride), out.time.peak_fa_swing(stride)]     = max(KA(ON:ON_next, 1));
         [out.fa_hs(stride),    out.time.fa_hs(stride)]         = max(KA(ON, 1));
@@ -179,6 +162,7 @@ function [out] = knee_outcomes(data, events, side, sample_rate)
         % per Zeni et al 2009 Clin Biomech (24) - 3% stance to to peak knee flexion angle
         [out.djs_f(stride), out.djs_a(stride)] = dynamic_joint_stiffness(km_deriv, ka_deriv, round(stance_frames*0.03) + ON, out.time.peak_fa(stride)+ON);
     end
+    [out.means, out.stds] = summary_outcomes(out);
 end
 
 function [out] = ankle_outcomes(data, events, side, sample_rate)
@@ -218,6 +202,7 @@ function [out] = ankle_outcomes(data, events, side, sample_rate)
         % Composite
         % [out.djs_pf, out.djs_a] = dynamic_joint_stiffness(am_deriv, aa_deriv, round(stance_frames*0.03) + ON, out.time.peak_eva+ON);
     end
+    [out.means, out.stds] = summary_outcomes(out);
 end
 
 function [out] = grf_outcomes(data, events, side, sample_rate)
@@ -243,7 +228,7 @@ function [out] = grf_outcomes(data, events, side, sample_rate)
         [out.peak_ml1(stride), out.time.peak_ml1(stride)]   = max(GRF(ON:ON+round(stance_frames*0.5), 1));
         [out.peak_ml2(stride), out.time.peak_ml2(stride)]   = max(GRF(ON+round(stance_frames*0.5):OFF, 1));
         out.time.peak_ml2(stride) = out.time.peak_ml2(stride) + ON+round(stance_frames*0.5);
-        [out.unload_ml(stride), out.time.unload_ml(stride)]     = min(GRF(out.time.peak_ml1:out.time.peak_ml2, 1));
+        [out.unload_ml(stride), out.time.unload_ml(stride)]     = min(GRF(out.time.peak_ml1(stride):out.time.peak_ml2(stride), 1));
         out.time.unload_ml(stride)= out.time.unload_ml(stride) + out.time.peak_ml1(stride);
         positive_idx = find(GRF(ON:OFF,1) >= 0) + ON;
         [out.impulse_ml(stride)]                    = trapz(GRF(positive_idx,1))*(1/sample_rate.analog);
@@ -273,6 +258,7 @@ function [out] = grf_outcomes(data, events, side, sample_rate)
         [out.peak_v_rate(stride), out.time.peak_v_rate(stride)] = min(grf_deriv(ON:ON+round(stance_frames*0.5),3));
     
     end
+    [out.means, out.stds] = summary_outcomes(out);
 end
 
 function [out] = foot_outcomes(data, events, side, sample_rate)
@@ -296,6 +282,7 @@ function [out] = foot_outcomes(data, events, side, sample_rate)
         out.time.a_ms(stride) = out.time.a_ms(stride) + ON;
         [out.a_termswing(stride)]                        = max(FA(ON-round(stance_frames*0.1):ON,1));
     end
+    [out.means, out.stds] = summary_outcomes(out);
 end
 
 function [out] = shank_outcomes(data, events, side, sample_rate)
@@ -321,6 +308,7 @@ function [out] = shank_outcomes(data, events, side, sample_rate)
         out.time.a_ms(stride) = out.time.a_ms(stride) + ON;
         [out.a_termswing(stride)]                        = max(SA(ON-round(stance_frames*0.1):ON,1));
     end
+    [out.means, out.stds] = summary_outcomes(out);
 end
 
 function [out] = thigh_outcomes(data, events, side, sample_rate)
@@ -347,6 +335,7 @@ function [out] = thigh_outcomes(data, events, side, sample_rate)
         out.time.a_ms(stride) = out.time.a_ms(stride) + ON;
         [out.a_termswing(stride)]                        = max(TA(ON-round(stance_frames*0.1):ON,1));
     end
+    [out.means, out.stds] = summary_outcomes(out);
 end
 
 function [events_out] = temporal_outcomes(ON, OFF)
@@ -358,6 +347,9 @@ function [events_out] = temporal_outcomes(ON, OFF)
     events_out.stance_time_perc = events_out.stance_time(1:end-1) ./ events_out.stride_time;
     events_out.swing_time_perc = events_out.swing_time(1:end) ./ events_out.stride_time;
     events_out.cadence = sum(~isnan(events_out.stride_time))/(nansum(events_out.stride_time)/60);
+
+    [events_out.means, events_out.stds] = summary_outcomes(events_out);
+
 end
 
 
@@ -388,4 +380,22 @@ function [djs_f, djs_a] = dynamic_joint_stiffness(moment_deriv, angle_deriv, sta
     [ap,~]=polyfit(angle_deriv(startframe:endframe,2), moment_deriv(startframe:endframe,1), 2);
     [djs_f] = fp(1); 
     [djs_a] = ap(1); 
+end
+
+function [means,stds] = summary_outcomes(struct_in)
+% calculate mean and std across all strides in the condition
+    outcome_names = fieldnames(struct_in);
+    for o = 1:size(outcome_names,1)
+        if strcmp(outcome_names{o},"time")
+            time_outcome_names = fieldnames(struct_in.time);
+            for t = 1:size(time_outcome_names,1)
+                means.time.(time_outcome_names{t}) = nanmean(struct_in.time.(time_outcome_names{t}));
+                stds.time.(time_outcome_names{t}) = nanstd(struct_in.time.(time_outcome_names{t}));
+            end
+            continue;
+        end
+
+        means.(outcome_names{o}) = nanmean(struct_in.(outcome_names{o}));
+        stds.(outcome_names{o}) = nanstd(struct_in.(outcome_names{o}));
+    end
 end
