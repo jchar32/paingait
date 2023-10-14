@@ -4,7 +4,7 @@
 % 2. identify gait cycles to use for analysis
 % 3. calculate gait outcomes
 % 4. compile waveforms and time normalize
-
+% 5. gather data into results table for analysis
 
 %% Setup
 addpath("./utils")
@@ -24,9 +24,42 @@ for p = 1:size(subject_info.natural,2)
     [discrete_data] = calculate_discrete_outcomes(all_data, gait_events, sample_rate);
     [waveforms] = compile_waveforms(all_data, gait_events, sample_rate);
     visualize_gait_waveforms(waveforms)
+    [results_table] = build_results_tables(discrete_data, p);
+    
     uiwait(msgbox("Look through participant waveforms, note any anomalies. Click OK when done to save data")); close all;
-    save(fullfile(data_root, "Summary Data", "P" + num2str(p) + "_data.mat"), "gait_events","discrete_data","waveforms")
+    save(fullfile("../data", ["P" + num2str(p) + "_data.mat"]), "gait_events","discrete_data","waveforms", "results_table")
+    disp("Done: " + num2str(p))
 end
 
 %% Compile participant data into summary tables for analysis
-% to come
+
+temporal = table();
+knee = table();
+hip = table();
+ankle = table();
+grf = table();
+thigh = table();
+shank = table();
+foot = table();
+
+for p=1:size(subject_info.natural,2)
+    load(fullfile("../data", ["P" + num2str(p) + "_data.mat"]), "waveforms", "results_table");
+    temporal = [temporal; results_table.temporal.biomech_outcomes_l;results_table.temporal.biomech_outcomes_r];
+    knee = [knee; results_table.knee.biomech_outcomes_l;results_table.knee.biomech_outcomes_r];
+    hip = [hip; results_table.hip.biomech_outcomes_l;results_table.hip.biomech_outcomes_r];
+    ankle = [ankle; results_table.ankle.biomech_outcomes_l;results_table.ankle.biomech_outcomes_r];
+    grf = [grf; results_table.grf.biomech_outcomes_l;results_table.grf.biomech_outcomes_r];
+    thigh = [thigh; results_table.thigh.biomech_outcomes_l;results_table.thigh.biomech_outcomes_r];
+    shank = [shank; results_table.shank.biomech_outcomes_l;results_table.shank.biomech_outcomes_r];
+    foot = [foot; results_table.foot.biomech_outcomes_l;results_table.foot.biomech_outcomes_r];
+end
+
+writetable(temporal,fullfile("../data","temporal.csv"))
+writetable(knee,fullfile("../data","knee.csv"))
+writetable(hip,fullfile("../data","hip.csv"))
+writetable(ankle,fullfile("../data","ankle.csv"))
+writetable(grf,fullfile("../data","grf.csv"))
+writetable(thigh,fullfile("../data","thigh.csv"))
+writetable(shank,fullfile("../data","shank.csv"))
+writetable(foot,fullfile("../data","foot.csv"))
+
