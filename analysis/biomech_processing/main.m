@@ -63,3 +63,39 @@ writetable(thigh,fullfile("../data","thigh.csv"))
 writetable(shank,fullfile("../data","shank.csv"))
 writetable(foot,fullfile("../data","foot.csv"))
 
+%% Compile waveforms into matrices for analysis
+
+for p=1:size(subject_info.natural,2)
+    load(fullfile("../data", ["P" + num2str(p) + "_data.mat"]), "waveforms");
+    condition_names = fieldnames(waveforms);
+    for c = 1:size(condition_names)
+        try waveforms.(condition_names{c});
+        catch
+            continue; % skip condition as it was not collected
+        end
+        outcome_names = fieldnames(waveforms.(condition_names{c}));
+        for o = 1:size(outcome_names,1)
+            limbs =["l","r"];
+            for limb = 1:2
+                varnames = fieldnames(waveforms.(condition_names{c}).(outcome_names{o}).(limbs{limb}));
+                for v = 1:size(varnames)
+                    if strcmp(varnames{v}, "force") | strcmp(varnames{v}, "angle")
+                        gait_comp = "cycle_nd_mean";
+                    else
+                        gait_comp = "stance_nd_mean";
+                    end
+
+                    if p ==1 % initialize array with nans so they don't default to zeros
+                        wfrm.(outcome_names{o}).(limbs{limb}).(varnames{v}).(condition_names{c})= nan(12,100,3);
+                    end
+
+                    wfrm.(outcome_names{o}).(limbs{limb}).(varnames{v}).(condition_names{c})(p,1:100,1:3) = ...
+                        waveforms.(condition_names{c}).(outcome_names{o}).(limbs{limb}).(varnames{v}).(gait_comp);
+                end
+            end
+        end
+    end
+    clear waveforms
+end
+
+save(fullfile("../data", "waveform_data.mat"), "wfrm")
