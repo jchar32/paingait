@@ -64,6 +64,6 @@ end
 
 
 function [nd] = time_normalize(data)
-    nd=interp1(1:size(data,1), data, linspace(0, size(data,1), 100 ), "pchip");
+    nd=interp1(1:size(data,1), data, linspace(0, size(data,1), 101 ), "pchip");
 end
 
