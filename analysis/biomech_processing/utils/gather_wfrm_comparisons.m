@@ -58,16 +58,16 @@ end
 function [ids, condids] = get_condition_ids(comps, condstruct)
 
     if strcmp(comps, "cyca")
-        ids = contains(fieldnames(condstruct), "cyca");
+        ids = contains(fieldnames(condstruct), ["natural", "cyca"]);
     elseif strcmp(comps, "cycb")
-        ids = contains(fieldnames(condstruct), "cycb");
+        ids = contains(fieldnames(condstruct), ["natural","cycb"]);
     elseif strcmp(comps, "cycc")
-        ids = contains(fieldnames(condstruct), "cycc");
+        ids = contains(fieldnames(condstruct), ["natural","cycc"]);
     elseif strcmp(comps, "cycavton")
-        ids = contains(fieldnames(condstruct), ["onecyca","threecyca","fivecyca","ton"]);
+        ids = contains(fieldnames(condstruct), ["natural","onecyca","threecyca","fivecyca","ton"]);
     elseif strcmp(comps, "cyc")
-        ids = contains(fieldnames(condstruct), "cyc");
+        ids = contains(fieldnames(condstruct), ["natural","cyc"]);
     elseif strcmp(comps, "ton")
-        ids = contains(fieldnames(condstruct), "ton");
+        ids = contains(fieldnames(condstruct), ["natural","ton"]);
     end
 end

@@ -3,9 +3,9 @@ function [pid, condid] = get_data_ids(X, allconds, comps)
 % comparisons.
 % A Helper function for compiling data for PCA
     if strcmp(comps,"cycavton")
-        conds = allconds(contains(allconds,["onecyca","threecyca","fivecyca","ton"]));
+        conds = allconds(contains(allconds,["natural","onecyca","threecyca","fivecyca","ton"]));
     else
-        conds = allconds(contains(allconds, comps));
+        conds = allconds(contains(allconds, ["natural",comps]));
     end
 
     condid = repelem(conds,size(X,1)/length(conds));
