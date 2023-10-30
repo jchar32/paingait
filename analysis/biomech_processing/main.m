@@ -99,3 +99,100 @@ for p=1:size(subject_info.natural,2)
 end
 
 save(fullfile("../data", "waveform_data.mat"), "wfrm")
+
+%% Compile data and PCA
+
+% compile various combinations of conditions for PCA comparisons
+% 1. all
+% 2. start
+% 3. mid
+% 4. end
+% 5. cyc start 1,2,3 vs tonic
+% 6. all cyc
+
+% Outcomes
+% hip x,y,z angle, moment
+% knee x,y,z angle, moment
+% ankle x,y,z angle moment
+% grf x,y,z force
+
+load(fullfile("../data", "waveform_data.mat"), "wfrm")
+
+outcomes = ["hip","knee","ankle", "grf"];
+comparisons = ["cyca","cycb","cycc","cycavton","cyc","ton"];
+allcondnames = fieldnames(wfrm.hip.l.angle);
+
+% for each comparisons of interest, gather together participant/condition
+% data into single matricies for analysis
+[pca_data] = gather_wfrm_comparisons(wfrm, outcomes, comparisons);
+
+% Really ugly nested loops to step down into hierearchy, get specific data,
+% run pca, store results. There is probably a more elegant way but this is
+% fine...
+for o = 1:length(outcomes)
+    for c = 1:length(comparisons)
+        for lb = 1:2
+            if lb == 1; limb = "r"; else; limb = "l"; end
+            
+            for axis = 1:3
+                if strcmp(outcomes{o},"grf")
+                    % get data and make id columns for analysis
+                    X=pca_data.(outcomes{o}).(limb).(comparisons{c}).force(:,:,axis);
+                    [pid, condid] = get_data_ids(X, allcondnames, comparisons{c});
+                    [X, pid, condid] = remove_nans(X, pid, condid);
+                    
+                    % perform pca on waveforms
+                    [S] = pca_svd(X);
+                    S.pid=pid; S.condid=condid;
+                    pca_results.(outcomes{o}).(limb).(comparisons{c}).force{axis} = S;
+
+                    % generate file name
+                    filename = strjoin([outcomes{o}, limb, comparisons{c}, "force", num2str(axis) + ".csv"],"_");
+                    write_results_2_file(S, filename)
+                else
+                    % ANGLE
+                    % get data and make id columns for analysis
+                    X=pca_data.(outcomes{o}).(limb).(comparisons{c}).angle(:,:,axis);
+                    [pid, condid] = get_data_ids(X, allcondnames, comparisons{c});
+                    [X, pid, condid] = remove_nans(X, pid, condid);
+                    
+                    % perform pca on waveforms
+                    [S] = pca_svd(X);
+                    S.pid=pid; S.condid=condid;
+                    pca_results.(outcomes{o}).(limb).(comparisons{c}).angle{axis} = S;
+
+                    % generate file name
+                    filename = strjoin([outcomes{o}, limb, comparisons{c}, "angle", num2str(axis) + ".csv"],"_");
+                    write_results_2_file(S, filename)
+                    
+                    % MOMENT
+                    % get data and make id columns for analysis
+                    X=pca_data.(outcomes{o}).(limb).(comparisons{c}).moment(:,:,axis);
+                    [pid, condid] = get_data_ids(X, allcondnames, comparisons{c});
+                    [X, pid, condid] = remove_nans(X, pid, condid);
+                    
+                    % perform pca on waveforms
+                    [S] = pca_svd(X);
+                    S.pid=pid; S.condid=condid;
+                    pca_results.(outcomes{o}).(limb).(comparisons{c}).moment{axis} = S;
+
+                    % generate file name
+                    filename = strjoin([outcomes{o}, limb, comparisons{c}, "moment", num2str(axis) + ".csv"],"_");
+                    write_results_2_file(S, filename)
+                    
+                end % If statement
+                
+            end % axis
+
+        end % limb
+    end % comparison
+end % outcome
+
+save(fullfile("../data", "pca_analysis.mat"), "pca_data","pca_results","comparisons","outcomes")
+
+
+
+
+
+
+
