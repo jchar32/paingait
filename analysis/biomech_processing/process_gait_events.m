@@ -56,7 +56,7 @@ function [ON_cor, OFF_cor, ON_next_cor] = align_events(ON, OFF)
         
         if isempty(possible_off)
         continue;
-        elseif length(possible_off) > 2
+        elseif length(possible_off) > 1
            off_cor(i,1) = min(OFF(possible_off));
            on_cor(i,1) = ON(i); 
         else

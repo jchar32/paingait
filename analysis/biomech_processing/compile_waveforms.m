@@ -40,10 +40,10 @@ function [out] = gather_strides(data, events, side, sample_rate)
         
         [ON, OFF, ON_next, ~, ~] = unpack_events(events, s, side, sample_rate);
         if ~(is_good_stance(ON*(1/sample_rate), OFF*(1/sample_rate)) && is_good_stride(ON*(1/sample_rate), ON_next*(1/sample_rate)))
-            out.stance{s,1} = nan(100,3);
-            out.cycle{s,1} = nan(100,3);
-            out.stance_nd(:,1:3,s) = nan(100,3);
-            out.cycle_nd(:,1:3,s) = nan(100,3);
+            out.stance{s,1} = nan(101,3);
+            out.cycle{s,1} = nan(101,3);
+            out.stance_nd(:,1:3,s) = nan(101,3);
+            out.cycle_nd(:,1:3,s) = nan(101,3);
             continue;
         end
         
