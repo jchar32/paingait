@@ -79,17 +79,20 @@ for p=1:size(subject_info.natural,2)
             for limb = 1:2
                 varnames = fieldnames(waveforms.(condition_names{c}).(outcome_names{o}).(limbs{limb}));
                 for v = 1:size(varnames)
-                    if strcmp(varnames{v}, "force") | strcmp(varnames{v}, "angle")
+                    if strcmp(varnames{v}, "force") || strcmp(varnames{v}, "angle")
                         gait_comp = "cycle_nd_mean";
                     else
                         gait_comp = "stance_nd_mean";
                     end
 
-                    if p ==1 % initialize array with nans so they don't default to zeros
-                        wfrm.(outcome_names{o}).(limbs{limb}).(varnames{v}).(condition_names{c})= nan(12,100,3);
+                    if p == 1 % initialize array with nans so they don't default to zeros
+                        wfrm.(outcome_names{o}).(limbs{limb}).(varnames{v}).(condition_names{c})= nan(12,101,3);
                     end
-
-                    wfrm.(outcome_names{o}).(limbs{limb}).(varnames{v}).(condition_names{c})(p,1:100,1:3) = ...
+                    if strcmp(varnames{v}, "moment") && (p==6 || p == 7) % equipment issue resulting in cop errors - removed from analysis for moments
+                        disp("")
+                        continue;
+                    end
+                    wfrm.(outcome_names{o}).(limbs{limb}).(varnames{v}).(condition_names{c})(p,1:101,1:3) = ...
                         waveforms.(condition_names{c}).(outcome_names{o}).(limbs{limb}).(varnames{v}).(gait_comp);
                 end
             end
@@ -192,9 +195,11 @@ save(fullfile("../data", "pca_analysis.mat"), "pca_data","pca_results","comparis
 
 %% Creating figures for pca analysis
 
+% Generates tiled plots with columns == axis, and row 1= waveforms row 2 =
+% loading vectors with 5th and 95th percentile waveforms
 load(fullfile("../data", "pca_analysis.mat"), "pca_data","pca_results","comparisons","outcomes")
 
-% plot pca results
+% plot and save each variable set
 varname = ["angle","moment","force"];
 for o = 1:length(outcomes)
     
@@ -203,9 +208,11 @@ for o = 1:length(outcomes)
         for v = 1:3
             if strcmp(outcomes{o}, "grf")
                 vname = varname(3);
+                axes = ["Frontal","Sagittal","Vertical"];
             else
                 if v==3; continue;end
                 vname = varname(v);
+                axes = ["Sagittal","Frontal","Transverse"];
             end
 
             t=tiledlayout(2,3);
@@ -228,15 +235,35 @@ for o = 1:length(outcomes)
 
                 % plot the compiled pca results waveforms
                 nexttile(axis); hold on;
-                pca_plot(X, Xmean, pc_percentiles_vec, axis)
+                pca_plot(X, Xmean, pc_percentiles_vec, axis, axes)
+                ylabel(varname{v})
+                xlim([0,100])
+
+                nexttile(axis+3); 
+                yyaxis left; hold on;
+                plot(pc_percentiles_vec(1,:)','r--', "DisplayName","PC1 5th", LineWidth=1)
+                plot(pc_percentiles_vec(2,:)','r.', "DisplayName","PC1 95th", LineWidth=1)
+                if size(pc_percentiles_vec,1) > 2
+                    plot(pc_percentiles_vec(3,:)','b--', "DisplayName","PC2 5th", LineWidth=1)
+                    plot(pc_percentiles_vec(4,:)','b.', "DisplayName","PC2 95th", LineWidth=1)
+                end
+                ylabel(varname{v})
+                xlim([0,100])
                 
-                nexttile(axis+3); hold on;
-                mean_wfrm_plot(Xmean, condmeanstbl, axis);
+                yyaxis right; hold on;
+                plot(res.pcs(:,1), 'r-', "DisplayName","PC1 Vector",LineWidth=2 )
+                if size(pc_percentiles_vec,1) > 2
+                    plot(res.pcs(:,2), 'b-', "DisplayName","PC2 Vector",LineWidth=2)
+                end
+                xlim([0,100])
+                if axis ==2
+                    lg = legend(Location="northoutside",Orientation="horizontal");
+                end
                 clear condmeans condmeanstbl pc_percentiles_vec
             end
             
-        filename = strjoin([outcomes{o}, "l", comparisons{c}, vname + ".fig"],"_");
-        savefig(fullfile("../data/pca/figs", filename ));
+            filename = strjoin([outcomes{o}, "l", comparisons{c}, vname + ".fig"],"_");
+            savefig(fullfile("../data/pca/figs", filename ));
         close all
         end
         

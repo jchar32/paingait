@@ -1,4 +1,4 @@
-function pca_plot(X, Xmean, pc_percentiles_vec, axis)
+function pca_plot(X, Xmean, pc_percentiles_vec, axis, axes)
     
     highlight_linewidth = 1.25;
     plot(X',Color="#d3d3d3", DisplayName="Raw") % raw waveforms
@@ -11,11 +11,10 @@ function pca_plot(X, Xmean, pc_percentiles_vec, axis)
     if size(pc_percentiles_vec,1) > 2
     plot(pc_percentiles_vec(3,:)', Color="#B53AA3", LineWidth=highlight_linewidth, DisplayName="PC2 5th"); 
     plot(pc_percentiles_vec(4,:)', Color="#B53AA3", LineWidth=highlight_linewidth,LineStyle="--", DisplayName="PC2 95th");
-    
-    axes = ["Sagittal","Frontal","Transverse"];
-    title([axes(axis) + " PCA"]);
-
     end
+    
+    
+    title([axes(axis) + " PCA"]);
 
     if axis ==2
         f=get(gca,'Children');
