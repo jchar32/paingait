@@ -191,7 +191,7 @@ for o = 1:length(outcomes)
     end % comparison
 end % outcome
 
-save(fullfile("../data", "pca_analysis.mat"), "pca_data","pca_results","comparisons","outcomes")
+save(fullfile("../data", "pca_analysis_v2.mat"), "pca_data","pca_results","comparisons","outcomes")
 
 %% Creating figures for pca analysis
 

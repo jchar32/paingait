@@ -11,5 +11,5 @@ function write_results_2_file(S, filename)
     varnames = [repelem("PC",S.n_pcs2keep) + string(1:1:S.n_pcs2keep)];
     results_table = array2table(S.testablepcscores, VariableNames=varnames);
     results_table = addvars(results_table, S.pid, S.condid, NewVariableNames=["pid","condid"]);  
-    writetable(results_table, fullfile("../data/pca/", filename));
+    writetable(sortrows(results_table,size(results_table,2)-1), fullfile("../data/pca/", filename));
 end
