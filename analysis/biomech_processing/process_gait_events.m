@@ -1,6 +1,7 @@
 function [gait_events] = process_gait_events(all_data)
 condition_names = fieldnames(all_data);
 for c = 1:size(condition_names,1)
+
     if isempty(all_data.(condition_names{c})); continue; end
     LON = all_data.(condition_names{c}).LON{:};
     LOFF = all_data.(condition_names{c}).LOFF{:};
