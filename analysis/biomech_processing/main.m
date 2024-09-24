@@ -9,8 +9,8 @@
 %% Setup
 addpath("./utils")
 
-data_direc_root = "U:\Projects\Experimental pain gait assessment\";
-data_root = data_direc_root + "\Processed Data\Motion Analysis Data\";
+data_direc_root = "your_project_root_path";
+data_root = data_direc_root + "\path_from_root_to_data\";
 [subject_info, limb] = get_subject_info(fullfile(data_direc_root,"Processed Data","Experimental pain gait assessment subject trial info.xlsx"));
 
 sample_rate.mocap= 100;
